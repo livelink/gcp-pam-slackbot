@@ -96,6 +96,7 @@ def handle_pam_event(cloud_event):
         role = "Unknown"
 
     requester = response_data.get("requester", actor)
+    requester_mention = format_slack_mention(requester)
     requested_duration = response_data.get("requestedDuration", "Unknown")
     justification = response_data.get("justification", {}).get("unstructuredJustification", "")
 
@@ -142,7 +143,7 @@ def handle_pam_event(cloud_event):
     # Build event-specific message
     if event_type == "create" and grant_state in AUTO_APPROVED_STATES:
         slack_message = build_auto_approved_message(
-            requester=requester, scope=scope, entitlement_id=entitlement_id,
+            requester=requester_mention, scope=scope, entitlement_id=entitlement_id,
             role=role, justification=justification,
             requested_duration=requested_duration,
             pam_url=f"{pam_base}/grants/all?{scope_param}",
@@ -161,7 +162,7 @@ def handle_pam_event(cloud_event):
                         approver_tags.append(tag)
 
         slack_message = build_request_message(
-            requester=requester, scope=scope, entitlement_id=entitlement_id,
+            requester=requester_mention, scope=scope, entitlement_id=entitlement_id,
             role=role, justification=justification,
             requested_duration=requested_duration,
             pam_url=f"{pam_base}/grants/approvals?{scope_param}",
@@ -170,7 +171,7 @@ def handle_pam_event(cloud_event):
         )
     elif event_type == "approve":
         slack_message = build_approved_message(
-            requester=requester, approver=actor, scope=scope,
+            requester=requester_mention, approver=actor, scope=scope,
             entitlement_id=entitlement_id, role=role,
             pam_url=f"{pam_base}/grants/all?{scope_param}",
             timestamp=timestamp,
@@ -182,7 +183,7 @@ def handle_pam_event(cloud_event):
         )
     elif event_type == "deny":
         slack_message = build_denied_message(
-            requester=requester, denier=actor, scope=scope,
+            requester=requester_mention, denier=actor, scope=scope,
             entitlement_id=entitlement_id, role=role,
             pam_url=f"{pam_base}/grants/all?{scope_param}",
             timestamp=timestamp,
@@ -194,7 +195,7 @@ def handle_pam_event(cloud_event):
         )
     elif event_type == "withdraw":
         slack_message = build_withdrawn_message(
-            requester=requester, scope=scope,
+            requester=requester_mention, scope=scope,
             entitlement_id=entitlement_id, role=role,
             pam_url=f"{pam_base}/grants/all?{scope_param}",
             timestamp=timestamp,
@@ -440,7 +441,7 @@ def resolve_slack_group(google_group_principal):
     """Resolve a Google group principal to a Slack subteam mention string.
 
     Args:
-        google_group_principal: e.g. "group:syseng@livelinktechnology.net"
+        google_group_principal: e.g. "group:engineering@example.com"
 
     Returns:
         Slack mention string like "<!subteam^S12345>" or None if unresolvable.
@@ -491,6 +492,14 @@ def resolve_slack_subteam_id(handle):
         print(f"Failed to resolve Slack subteam for handle '{handle}': {e}")
 
     return None
+
+
+def format_slack_mention(email):
+    """Return a Slack mention string for an email, falling back to the email itself."""
+    user_id = resolve_slack_user_id(email)
+    if user_id:
+        return f"<@{user_id}>"
+    return email
 
 
 def resolve_slack_user_id(email):

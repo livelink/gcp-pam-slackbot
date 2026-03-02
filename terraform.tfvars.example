@@ -10,6 +10,6 @@ slack_channel   = "#pam-notifications"
 # Map Google group emails (configured as PAM approvers) to Slack user group handles.
 # The bot will mention these groups when a new access request is pending approval.
 approver_slack_handle_map = {
-  "syseng@example.com"   = "syseng-team"
+  "engineering@example.com" = "engineering-team"
   "security@example.com" = "security-team"
 }

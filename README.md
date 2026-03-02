@@ -51,7 +51,7 @@ module "pam_slackbot" {
   slack_channel   = "#pam-notifications"
 
   approver_slack_handle_map = {
-    "syseng@example.com"   = "syseng-team"
+    "engineering@example.com" = "engineering-team"
     "security@example.com" = "security-team"
   }
 }
@@ -119,7 +119,7 @@ The `approver_slack_handle_map` variable maps Google group emails (configured as
 
 ```hcl
 approver_slack_handle_map = {
-  "syseng@example.com"   = "syseng-team"    # @syseng-team in Slack
+  "engineering@example.com" = "engineering-team"  # @engineering-team in Slack
   "security@example.com" = "security-team"   # @security-team in Slack
 }
 ```
