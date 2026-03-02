@@ -1,0 +1,15 @@
+# Copy this file to terraform.tfvars and fill in your values.
+# Never commit terraform.tfvars — it contains sensitive credentials.
+
+org_id          = "123456789"
+project_id      = "my-central-project"
+region          = "us-central1"
+slack_bot_token = "xoxb-your-token-here"
+slack_channel   = "#pam-notifications"
+
+# Map Google group emails (configured as PAM approvers) to Slack user group handles.
+# The bot will mention these groups when a new access request is pending approval.
+approver_slack_handle_map = {
+  "syseng@example.com"   = "syseng-team"
+  "security@example.com" = "security-team"
+}
